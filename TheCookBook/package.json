@@ -1,0 +1,9 @@
+{
+  "name": "the-cook-book",
+  "version": "0.0.0",
+  "description": "TheCookBook",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  }
+}

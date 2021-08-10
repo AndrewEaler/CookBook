@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>The Cook Book</title>
+   <link rel="stylesheet" href="./static/CSS/index.css"/>
+</head>
+<body>
+    <header>
+        <h1>The Cook Book</h1>
+    </header>
+    <main>
+        
+        <div id="searchBox">
+            <div id="ingredientInclude">
+                <label>Include Inredients: </label>
+                <input type="text" id="searchTerm">
+            </div>
+            <div id="searchParameters">
+
+            </div>
+            &nbsp;
+            <div>
+                <input type="button" id="search" name="Search" value="Search Cook Book">
+            </div>
+            <div class="separator">
+                <input type="button" id="addParam" name="addParam" value="Add Search Parameter" />
+            </div>
+        </div>
+        
+
+        <div id="RecipeOutput">
+
+        </div>
+    </main>
+    <script type="text/javascript" src="./static/JS/GetRecipeInfo.js"></script>
+</body>
+
+</html>
