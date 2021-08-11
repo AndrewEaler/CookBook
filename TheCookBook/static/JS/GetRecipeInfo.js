@@ -4,6 +4,20 @@ var apiKey = "c6930cb9400e477fb79ec2682ebd7481";
 var resultsPerSearch = 10;
 var resultIndex = 0;
 var numOfParam = 0;
+const eventList = [];
+
+const parameterDictionary = {
+    "Cuisine": "cuisine",
+    "Key Word": "query",
+    "Exclude Ingredients": "excludeIngredients",
+    "Exclude Cuisine": "excludeCuisine",
+    "Diet": "diet",
+    "Intolerances": "intolerances",
+    "Equipment": "equipment",
+    "Course Type": "type",
+    "Word In Title": "titleMatch",
+    "Max Ready Time": "maxReadyTime"
+};
 
 document.getElementById("search").addEventListener("click", function () {
     resultIndex = 0;
@@ -13,24 +27,29 @@ document.getElementById("search").addEventListener("click", function () {
 });
 
 document.getElementById("addParam").addEventListener("click", function () {
-    const paramList = ["Key Word", "Excude Ingredients", "Cuisine", "Exclude Cuisine", "Diet", "Intolerances", "Equipment", "Course Type"];
     const paramSelector = ['<div class=\"parameter\" id=\"param' + numOfParam + '\"><input type=\"button\" id=\"deleteParam' + numOfParam +'\" value=\"x\"><select id=\"selector' + numOfParam + '\">'];
 
-    //Add all search parameter to selector meno
-    for (var i = 0; i < paramList.length; i++) {
-        paramSelector.push('<option>' + paramList[i] + '</option>');
+    for (const [key] of Object.entries(parameterDictionary)) {
+        paramSelector.push('<option>' + `${key}` +  '</option>');
     }
-    paramSelector.push('</select></div>');
 
-    //document.getElementById("searchParameters").innerHTML += paramSelector.join("");
+    paramSelector.push('</select><input type="text" id=\"input' + numOfParam + '\"></div>');
     document.getElementById("searchParameters").insertAdjacentHTML('beforeend', paramSelector.join(""));
 
+    eventList.push(newListener(numOfParam));
+    console.log("Create event for " + numOfParam + "length:" + eventList.length);
 
-    createEventForButton(numOfParam);
+    function newListener(value) {
+        //check if a div exists with the id 
+        if (document.getElementById("deleteParam" + value)) {            
+            document.getElementById("deleteParam" + value).addEventListener("click", function () {
+                console.log("deleting " + value + " length: " + eventList.length);
+                document.getElementById("param" + value).remove(); 
+            });
+        }
+    }
 
     numOfParam++;
-
-    
 });
 
 async function buildTable(data) {
@@ -67,7 +86,6 @@ async function buildTable(data) {
     document.getElementById("next").addEventListener("click", function () {
         if (resultIndex + resultsPerSearch >= totalResults) {
             window.alert("No more recipes to show");
-            //break;
         } else {
             resultIndex += resultsPerSearch;
             getRecipeData(getURL())
@@ -117,6 +135,27 @@ function getURL() {
     var ingredientInput = document.getElementById("searchTerm").value;
     var URL = (urlBegin + "?apiKey=" + apiKey + "&addRecipeInformation=true&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=" + resultsPerSearch + "&offset=" + resultIndex);
 
+    const parameterValues = {};
+    console.log("Begin loop adding parameters");
+    for (var i = 0; i < numOfParam; i++) {
+        console.log("Adding " + i + " of " + numOfParam + " parameters");
+        if (document.getElementById("param" + i)) {
+            console.log("param" + i + " exists");
+            if (parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] === undefined) {
+                parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] = [];
+            }
+            if (document.getElementById("input" + i).value != '') {
+                console.log(parameterDictionary[document.getElementById("selector" + i).value]);
+                parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
+                console.log(parameterValues[parameterDictionary[document.getElementById("selector" + i).value]]);
+                console.log(parameterValues);
+            }  
+        }
+    }
+
+    for (const [key, value] of Object.entries(parameterDictionary)) {
+        console.log(`${key}`);
+    }
 
     return URL;
 }
@@ -129,35 +168,9 @@ function getRecipeData(URL) {
         });
 }
 
-//create an array of event listers for delete buttons in search parameters div 
-//If created one at a time the DOM only recognizes the most previous one created and leads to errors
 
-function createEventForButton(value) {
-    const eventList = [];
-    /*
-    for (var i = 0; i <= eventList.length; i++) {
-        eventList.pop();
-    }
-    */
-    //eventList.splice(0, eventList.length);
-    console.log("Length before: " + eventList.length);
-    //eventList = [];
-    
-    //for (var i = 0; i <= value; i++) {
-    eventList.push(newListener(value));
-    //}
 
-    function newListener(value) {
-        //check if a div exists with the id 
-        if (document.getElementById("deleteParam" + value)) {
-            console.log("Create event for " + value + "length:" + eventList.length);
-            document.getElementById("deleteParam" + value).addEventListener("click", function () {
-                //if (document.getElementById("deleteParam" + value)) {
-                    console.log("deleting " + value + " length: " + eventList.length);
-                    document.getElementById("param" + value).remove();
-               // }  
-              });
-        }
-    }
-}
-//Function to open new html page pasing in recipe id to get infodocument.getElementById("RecipeOutput").innerHTML += table + '</table>';
+
+
+
+//Function to open new html page pasing in recipe id to get info
