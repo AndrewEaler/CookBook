@@ -8,5 +8,5 @@ app.listen(1337, () => {
 app.use("/static", express.static('./static/'));
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+    res.sendFile(__dirname + "/Views/index.html");
 });
