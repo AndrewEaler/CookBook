@@ -1,6 +1,8 @@
 // JavaScript source code
-//var apiKey = "4f19781fabb34431b48a2a5a3816b891";
-var apiKey = "c6930cb9400e477fb79ec2682ebd7481";
+var apiKey = config.API_KEY;
+
+console.log(apiKey);
+
 var resultsPerSearch = 10;
 var resultIndex = 0;
 var numOfParam = 0;
@@ -37,13 +39,11 @@ document.getElementById("addParam").addEventListener("click", function () {
     document.getElementById("searchParameters").insertAdjacentHTML('beforeend', paramSelector.join(""));
 
     eventList.push(newListener(numOfParam));
-    console.log("Create event for " + numOfParam + "length:" + eventList.length);
 
     function newListener(value) {
         //check if a div exists with the id 
         if (document.getElementById("deleteParam" + value)) {            
             document.getElementById("deleteParam" + value).addEventListener("click", function () {
-                console.log("deleting " + value + " length: " + eventList.length);
                 document.getElementById("param" + value).remove(); 
             });
         }
@@ -65,12 +65,10 @@ async function buildTable(data) {
     }
     
     document.getElementById("RecipeOutput").innerHTML += table.join("") + '</table>';
-    //second table for navigation buttons
-    //first page and previous page buttons
-    document.getElementById("RecipeOutput").innerHTML += '<table><tr><td class=\"nextPrev\"><input type=\"button\" id=\"firstPage\" value=\"<<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"prev\" value=\"<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"next\" value=\">\"></input></td><td class=\"nextPrev\"><input type=\"button\" id=\"lastPage\" value=\">>\"></input></td></tr></table>';
-    //next page and last page button
-    //document.getElementById("RecipeOutput").innerHTML += '';
 
+    //second table for navigation buttons
+    document.getElementById("RecipeOutput").innerHTML += '<table><tr><td class=\"nextPrev\"><input type=\"button\" id=\"firstPage\" value=\"<<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"prev\" value=\"<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"next\" value=\">\"></input></td><td class=\"nextPrev\"><input type=\"button\" id=\"lastPage\" value=\">>\"></input></td></tr></table>';
+ 
     if (resultIndex + resultsPerSearch <= totalResults) {
         document.getElementById("RecipeOutput").innerHTML += "<p>Showing " + (resultIndex + 1) + "-" + (resultIndex + resultsPerSearch) + " of " +
             totalResults + " total recipes</p>";
@@ -120,7 +118,7 @@ async function buildTable(data) {
     //Last page button
     document.getElementById("lastPage").addEventListener("click", function () {
         if (resultIndex + resultsPerSearch >= totalResults) {
-            window.alert("You're alreay at the begining of the list of recipes.");
+            window.alert("You're alreay at the end of the list of recipes.");
             //break;
         } else {
             resultIndex = totalResults - resultsPerSearch;
@@ -136,23 +134,19 @@ function getURL() {
     var URL = (urlBegin + "?apiKey=" + apiKey + "&addRecipeInformation=true&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=" + resultsPerSearch + "&offset=" + resultIndex);
 
     const parameterValues = {};
-    console.log("Begin loop adding parameters");
     for (var i = 0; i < numOfParam; i++) {
-        console.log("Adding " + i + " of " + numOfParam + " parameters");
         if (document.getElementById("param" + i)) {
-            console.log("param" + i + " exists");
             if (parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] === undefined) {
                 parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] = [];
             }
             if (document.getElementById("input" + i).value != '') {
                 console.log(parameterDictionary[document.getElementById("selector" + i).value]);
                 parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
-                console.log(parameterValues[parameterDictionary[document.getElementById("selector" + i).value]]);
-                console.log(parameterValues);
             }  
         }
     }
 
+    console.log(parameterValues);
     for (const [key, value] of Object.entries(parameterDictionary)) {
         console.log(`${key}`);
     }
