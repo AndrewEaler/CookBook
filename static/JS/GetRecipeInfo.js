@@ -59,7 +59,8 @@ async function buildTable(data) {
 
     for (var i = 0; i < resultsPerSearch && (resultIndex + i) < totalResults; i++) {
         table.push('<tr><td ><img src=\"' + data.results[i].image + '\"class=\"recipeImage\"/></td>');
-        table.push('<td>' + data.results[i].title + ' ' + data.results[i].id + '</td> </tr>');
+        table.push('<td>' + data.results[i].title + ' ' + data.results[i].id + '</td>');
+        table.push('<td>' + data.results[i].title + ' ' + data.results[i].ingredients + '</td> </tr>');
         //add link to page with recipe info 
         //add ingredient list
     }
@@ -135,22 +136,26 @@ function getURL() {
 
     const parameterValues = {};
     for (var i = 0; i < numOfParam; i++) {
-        if (document.getElementById("param" + i)) {
+        if (document.getElementById("param" + i) && document.getElementById("input" + i).value != '') {
             if (parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] === undefined) {
                 parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] = [];
             }
-            if (document.getElementById("input" + i).value != '') {
-                console.log(parameterDictionary[document.getElementById("selector" + i).value]);
-                parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
-            }  
+            
+            console.log(parameterDictionary[document.getElementById("selector" + i).value]);
+            parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
+             
         }
     }
 
     console.log(parameterValues);
     for (const [key, value] of Object.entries(parameterDictionary)) {
-        console.log(`${key}`);
+        console.log(value);
+        if (parameterValues[value]) {
+            URL = (URL + "&" + value + "=" + parameterValues[value].join());
+        }
     }
 
+    console.log(URL);
     return URL;
 }
 
