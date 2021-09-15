@@ -1,8 +1,6 @@
 // JavaScript source code
 var apiKey = config.API_KEY;
 
-console.log(apiKey);
-
 var resultsPerSearch = 10;
 var resultIndex = 0;
 var numOfParam = 0;
@@ -59,10 +57,9 @@ async function buildTable(data) {
 
     for (var i = 0; i < resultsPerSearch && (resultIndex + i) < totalResults; i++) {
         table.push('<tr><td ><img src=\"' + data.results[i].image + '\"class=\"recipeImage\"/></td>');
-        table.push('<td>' + data.results[i].title + ' ' + data.results[i].id + '</td>');
-        table.push('<td>' + data.results[i].title + ' ' + data.results[i].ingredients + '</td> </tr>');
+        table.push('<td><p onClick=\"recipePage(' + data.results[i].id +  ')\" class=\"recipeTitle\" id="' + data.results[i].id + '">' + data.results[i].title + '</p></td> </tr>');
         //add link to page with recipe info 
-        //add ingredient list
+        //add ingredient list  
     }
     
     document.getElementById("RecipeOutput").innerHTML += table.join("") + '</table>';
@@ -78,9 +75,10 @@ async function buildTable(data) {
             totalResults + " total recipes</p>";
     }
 
-    //
+    /////////////////////////////////////////////////////////
     //Event listeners for Next, Last Page, Previous, and First Page buttons
-    //
+    /////////////////////////
+
     //next button
     document.getElementById("next").addEventListener("click", function () {
         if (resultIndex + resultsPerSearch >= totalResults) {
@@ -143,7 +141,6 @@ function getURL() {
             
             console.log(parameterDictionary[document.getElementById("selector" + i).value]);
             parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
-             
         }
     }
 
@@ -167,9 +164,16 @@ function getRecipeData(URL) {
         });
 }
 
+function recipePage(recipeId) {
+    console.log(recipeId);
+    window.open("/Views/RecipeInfo.html?id=" + recipeId, "_self");
+}
+
 
 
 
 
 
 //Function to open new html page pasing in recipe id to get info
+
+//https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams

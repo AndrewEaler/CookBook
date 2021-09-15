@@ -9,7 +9,7 @@ table {
 }
 
 .recipeImage{
-    width: 150px;
+    max-width: 150px;
     padding: 2px;
     text-align:center;
 }
