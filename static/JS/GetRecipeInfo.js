@@ -1,5 +1,6 @@
 // JavaScript source code
 var apiKey = config.API_KEY;
+var cache = config.API_KEY;
 
 var resultsPerSearch = 10;
 var resultIndex = 0;
@@ -19,18 +20,18 @@ const parameterDictionary = {
     "Max Ready Time": "maxReadyTime"
 };
 
-document.getElementById("search").addEventListener("click", function () {
+document.getElementById("search").addEventListener("click", async function () {
     resultIndex = 0;
 
-    getRecipeData(getURL())
-        .then((res) => buildTable(res));
+    const response = await getRecipeData(getURL());
+    buildTable(response);
 });
 
 document.getElementById("addParam").addEventListener("click", function () {
-    const paramSelector = ['<div class=\"parameter\" id=\"param' + numOfParam + '\"><input type=\"button\" id=\"deleteParam' + numOfParam +'\" value=\"x\"><select id=\"selector' + numOfParam + '\">'];
+    const paramSelector = ['<div class=\"parameter\" id=\"param' + numOfParam + '\"><input type=\"button\" id=\"deleteParam' + numOfParam + '\" value=\"x\"><select id=\"selector' + numOfParam + '\">'];
 
     for (const [key] of Object.entries(parameterDictionary)) {
-        paramSelector.push('<option>' + `${key}` +  '</option>');
+        paramSelector.push('<option>' + `${key}` + '</option>');
     }
 
     paramSelector.push('</select><input type="text" id=\"input' + numOfParam + '\"></div>');
@@ -40,9 +41,9 @@ document.getElementById("addParam").addEventListener("click", function () {
 
     function newListener(value) {
         //check if a div exists with the id 
-        if (document.getElementById("deleteParam" + value)) {            
+        if (document.getElementById("deleteParam" + value)) {
             document.getElementById("deleteParam" + value).addEventListener("click", function () {
-                document.getElementById("param" + value).remove(); 
+                document.getElementById("param" + value).remove();
             });
         }
     }
@@ -57,16 +58,16 @@ async function buildTable(data) {
 
     for (var i = 0; i < resultsPerSearch && (resultIndex + i) < totalResults; i++) {
         table.push('<tr><td ><img src=\"' + data.results[i].image + '\"class=\"recipeImage\"/></td>');
-        table.push('<td><p onClick=\"recipePage(' + data.results[i].id +  ')\" class=\"recipeTitle\" id="' + data.results[i].id + '">' + data.results[i].title + '</p></td> </tr>');
+        table.push('<td><p onClick=\"recipePage(' + data.results[i].id + ')\" class=\"recipeTitle\" id="' + data.results[i].id + '">' + data.results[i].title + '</p></td> </tr>');
         //add link to page with recipe info 
         //add ingredient list  
     }
-    
+
     document.getElementById("RecipeOutput").innerHTML += table.join("") + '</table>';
 
     //second table for navigation buttons
     document.getElementById("RecipeOutput").innerHTML += '<table><tr><td class=\"nextPrev\"><input type=\"button\" id=\"firstPage\" value=\"<<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"prev\" value=\"<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"next\" value=\">\"></input></td><td class=\"nextPrev\"><input type=\"button\" id=\"lastPage\" value=\">>\"></input></td></tr></table>';
- 
+
     if (resultIndex + resultsPerSearch <= totalResults) {
         document.getElementById("RecipeOutput").innerHTML += "<p>Showing " + (resultIndex + 1) + "-" + (resultIndex + resultsPerSearch) + " of " +
             totalResults + " total recipes</p>";
@@ -128,7 +129,7 @@ async function buildTable(data) {
 };
 
 function getURL() {
-    var urlBegin = "https://api.spoonacular.com/recipes/complexSearch";
+    var urlBegin = "http://localhost:1337/api/spoonacular/getRecipes";
     var ingredientInput = document.getElementById("searchTerm").value;
     var URL = (urlBegin + "?apiKey=" + apiKey + "&addRecipeInformation=true&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=" + resultsPerSearch + "&offset=" + resultIndex);
 
@@ -138,22 +139,20 @@ function getURL() {
             if (parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] === undefined) {
                 parameterValues[parameterDictionary[document.getElementById("selector" + i).value]] = [];
             }
-            
+
             console.log(parameterDictionary[document.getElementById("selector" + i).value]);
             parameterValues[parameterDictionary[document.getElementById("selector" + i).value]].push(document.getElementById("input" + i).value);
         }
     }
 
-    console.log(parameterValues);
-    for (const [key, value] of Object.entries(parameterDictionary)) {
-        console.log(value);
-        if (parameterValues[value]) {
-            URL = (URL + "&" + value + "=" + parameterValues[value].join());
-        }
-    }
+    const queryParams = new URLSearchParams(parameterValues);
 
-    console.log(URL);
-    return URL;
+    if (queryParams.toString().length > 0) {
+        return URL + "&" + queryParams.toString();
+    }
+    else {
+        return URL;
+    }
 }
 
 function getRecipeData(URL) {
@@ -168,12 +167,3 @@ function recipePage(recipeId) {
     console.log(recipeId);
     window.open("/Views/RecipeInfo.html?id=" + recipeId, "_self");
 }
-
-
-
-
-
-
-//Function to open new html page pasing in recipe id to get info
-
-//https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams

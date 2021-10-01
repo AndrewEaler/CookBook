@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 var path = require('path');
+var needle = require('needle');
 
 const app = express();
 
@@ -17,4 +18,10 @@ app.use("/Views", express.static('./Views/'));
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/Views/index.html");
+});
+
+app.get("/api/spoonacular/getRecipes", async function (req, res) {
+    const queryParams = new URLSearchParams(req.query);
+    const response = (await needle("GET", "https://api.spoonacular.com/recipes/complexSearch?" + queryParams));
+    res.send(response.body);
 });
