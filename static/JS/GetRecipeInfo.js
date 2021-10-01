@@ -1,8 +1,6 @@
 // JavaScript source code
 var apiKey = config.API_KEY;
-var cache = config.API_KEY;
 
-var resultsPerSearch = 10;
 var resultIndex = 0;
 var numOfParam = 0;
 const eventList = [];
@@ -53,6 +51,7 @@ document.getElementById("addParam").addEventListener("click", function () {
 
 async function buildTable(data) {
     var totalResults = data.totalResults;
+    var resultsPerSearch = Math.floor(document.getElementById("recipePerPage").value);
     document.getElementById("RecipeOutput").innerHTML = '';
     const table = ['<table><thead><th>Image</th><th>Name</th></thead>'];
 
@@ -105,9 +104,12 @@ async function buildTable(data) {
 
     //previous button
     document.getElementById("prev").addEventListener("click", function () {
-        if (resultIndex - resultsPerSearch < 0) {
+        if (resultIndex - resultsPerSearch < 0 && resultIndex > 0) {
+            resultIndex = 0;
+            getRecipeData(getURL())
+                .then((res) => buildTable(res));
+        } else if (resultIndex - resultsPerSearch < 0) {
             window.alert("This is the begining of the recipe list.");
-            //break;
         } else {
             resultIndex -= resultsPerSearch;
             getRecipeData(getURL())
@@ -129,6 +131,7 @@ async function buildTable(data) {
 };
 
 function getURL() {
+    var resultsPerSearch = Math.floor(document.getElementById("recipePerPage").value);
     var urlBegin = "http://localhost:1337/api/spoonacular/getRecipes";
     var ingredientInput = document.getElementById("searchTerm").value;
     var URL = (urlBegin + "?apiKey=" + apiKey + "&addRecipeInformation=true&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=" + resultsPerSearch + "&offset=" + resultIndex);

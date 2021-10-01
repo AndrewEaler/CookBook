@@ -42,3 +42,7 @@ table {
 .parameter{
     padding:10px;
 }
+
+#recipePerPage{
+    width: 40px;
+}

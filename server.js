@@ -12,9 +12,9 @@ app.listen(1337, () => {
 });
 
 
-app.use("/static", express.static('./static/'));
-app.use("/config", express.static('./config/'));
-app.use("/Views", express.static('./Views/'));
+app.use("/static", express.static(path.join(__dirname, '/static/')));
+app.use("/config", express.static(path.join(__dirname,'./config/')));
+app.use("/Views", express.static(path.join(__dirname,'./Views/')));
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/Views/index.html");
@@ -23,5 +23,8 @@ app.get("/", (req, res) => {
 app.get("/api/spoonacular/getRecipes", async function (req, res) {
     const queryParams = new URLSearchParams(req.query);
     const response = (await needle("GET", "https://api.spoonacular.com/recipes/complexSearch?" + queryParams));
+
+
+
     res.send(response.body);
 });
