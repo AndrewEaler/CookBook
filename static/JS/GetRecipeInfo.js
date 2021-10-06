@@ -1,6 +1,6 @@
 // JavaScript source code
 var apiKey = config.API_KEY;
-
+var recipeList = {};
 var resultIndex = 0;
 var numOfParam = 0;
 const eventList = [];
@@ -21,8 +21,10 @@ const parameterDictionary = {
 document.getElementById("search").addEventListener("click", async function () {
     resultIndex = 0;
 
-    const response = await getRecipeData(getURL());
-    buildTable(response);
+    recipeList = await getRecipeData(await getURL());
+    console.log(recipeList);
+    //const response = await getRecipeData(getURL());
+    buildTable();
 });
 
 document.getElementById("addParam").addEventListener("click", function () {
@@ -49,17 +51,16 @@ document.getElementById("addParam").addEventListener("click", function () {
     numOfParam++;
 });
 
-async function buildTable(data) {
-    var totalResults = data.totalResults;
-    var resultsPerSearch = Math.floor(document.getElementById("recipePerPage").value);
+async function buildTable() {
+    var totalResults = recipeList.totalResults;
+    var resultsPerPage = Math.floor(document.getElementById("recipePerPage").value);
     document.getElementById("RecipeOutput").innerHTML = '';
     const table = ['<table><thead><th>Image</th><th>Name</th></thead>'];
 
-    for (var i = 0; i < resultsPerSearch && (resultIndex + i) < totalResults; i++) {
-        table.push('<tr><td ><img src=\"' + data.results[i].image + '\"class=\"recipeImage\"/></td>');
-        table.push('<td><p onClick=\"recipePage(' + data.results[i].id + ')\" class=\"recipeTitle\" id="' + data.results[i].id + '">' + data.results[i].title + '</p></td> </tr>');
+    for (var i = resultIndex; i < (resultIndex + resultsPerPage) && i < totalResults; i++) {
+        table.push('<tr><td ><img src=\"' + recipeList.results[i].image + '\"class=\"recipeImage\"/></td>');
+        table.push('<td><p onClick=\"recipePage(' + recipeList.results[i].id + ')\" class=\"recipeTitle\" id="' + recipeList.results[i].id + '">' + recipeList.results[i].title + '</p></td> </tr>');
         //add link to page with recipe info 
-        //add ingredient list  
     }
 
     document.getElementById("RecipeOutput").innerHTML += table.join("") + '</table>';
@@ -67,8 +68,8 @@ async function buildTable(data) {
     //second table for navigation buttons
     document.getElementById("RecipeOutput").innerHTML += '<table><tr><td class=\"nextPrev\"><input type=\"button\" id=\"firstPage\" value=\"<<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"prev\" value=\"<\"></input></td><td  class=\"nextPrev\"><input type=\"button\" id=\"next\" value=\">\"></input></td><td class=\"nextPrev\"><input type=\"button\" id=\"lastPage\" value=\">>\"></input></td></tr></table>';
 
-    if (resultIndex + resultsPerSearch <= totalResults) {
-        document.getElementById("RecipeOutput").innerHTML += "<p>Showing " + (resultIndex + 1) + "-" + (resultIndex + resultsPerSearch) + " of " +
+    if (resultIndex + resultsPerPage <= totalResults) {
+        document.getElementById("RecipeOutput").innerHTML += "<p>Showing " + (resultIndex + 1) + "-" + (resultIndex + resultsPerPage) + " of " +
             totalResults + " total recipes</p>";
     } else {
         document.getElementById("RecipeOutput").innerHTML += "<p>Showing " + (resultIndex + 1) + "-" + totalResults + " of " +
@@ -81,12 +82,11 @@ async function buildTable(data) {
 
     //next button
     document.getElementById("next").addEventListener("click", function () {
-        if (resultIndex + resultsPerSearch >= totalResults) {
+        if (resultIndex + resultsPerPage >= totalResults) {
             window.alert("No more recipes to show");
         } else {
-            resultIndex += resultsPerSearch;
-            getRecipeData(getURL())
-                .then((res) => buildTable(res));
+            resultIndex += resultsPerPage;
+            buildTable();
         }
     });
 
@@ -97,44 +97,39 @@ async function buildTable(data) {
             //break;
         } else {
             resultIndex = 0;
-            getRecipeData(getURL())
-                .then((res) => buildTable(res));
+            buildTable();
         }
     });
 
     //previous button
     document.getElementById("prev").addEventListener("click", function () {
-        if (resultIndex - resultsPerSearch < 0 && resultIndex > 0) {
+        if (resultIndex - resultsPerPage < 0 && resultIndex > 0) {
             resultIndex = 0;
-            getRecipeData(getURL())
-                .then((res) => buildTable(res));
-        } else if (resultIndex - resultsPerSearch < 0) {
+            buildTable();
+        } else if (resultIndex - resultsPerPage < 0) {
             window.alert("This is the begining of the recipe list.");
         } else {
-            resultIndex -= resultsPerSearch;
-            getRecipeData(getURL())
-                .then((res) => buildTable(res));
+            resultIndex -= resultsPerPage;
+            buildTable();
         }
     });
 
     //Last page button
     document.getElementById("lastPage").addEventListener("click", function () {
-        if (resultIndex + resultsPerSearch >= totalResults) {
+        if (resultIndex + resultsPerPage >= totalResults) {
             window.alert("You're alreay at the end of the list of recipes.");
-            //break;
         } else {
-            resultIndex = totalResults - resultsPerSearch;
-            getRecipeData(getURL())
-                .then((res) => buildTable(res));
+            resultIndex = totalResults - resultsPerPage;
+            buildTable();
         }
     });
 };
 
 function getURL() {
-    var resultsPerSearch = Math.floor(document.getElementById("recipePerPage").value);
+    //var resultsPerSearch = Math.floor(document.getElementById("recipePerPage").value);
     var urlBegin = "http://localhost:1337/api/spoonacular/getRecipes";
     var ingredientInput = document.getElementById("searchTerm").value;
-    var URL = (urlBegin + "?apiKey=" + apiKey + "&addRecipeInformation=true&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=" + resultsPerSearch + "&offset=" + resultIndex);
+    var URL = (urlBegin + "?apiKey=" + apiKey + "&instructionsRequired=true&includeIngredients=" + ingredientInput + "&number=100");
 
     const parameterValues = {};
     for (var i = 0; i < numOfParam; i++) {
@@ -158,12 +153,14 @@ function getURL() {
     }
 }
 
-function getRecipeData(URL) {
+async function getRecipeData(URL) {
     return fetch(URL)
         .then((response) => response.json())
         .catch(function (err) {
             console.log(err);
         });
+
+
 }
 
 function recipePage(recipeId) {
