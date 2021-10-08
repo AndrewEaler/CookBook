@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "description": "TheCookBook",
   "main": "server.js",
+  "scripts": {
+    "start": "npm --prefix ./redis/ run redis",
+    "server": "node server.js"
+  },
   "author": {
     "name": ""
   },
@@ -11,7 +15,9 @@
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "needle": "^3.0.0",
+    "npm-run-all": "^4.1.5",
     "path": "^0.12.7",
-    "redis": "^3.1.2"
+    "redis": "^3.1.2",
+    "redis-server": "^1.2.2"
   }
 }

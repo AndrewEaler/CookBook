@@ -2,9 +2,8 @@ const express = require("express");
 const morgan = require("morgan");
 var path = require('path');
 var needle = require('needle');
-const redis = require('redis');
-const { query } = require("express");
 
+const redis = require('redis');
 const client = redis.createClient(6379);
 
 const app = express();
@@ -23,6 +22,7 @@ app.use("/Views", express.static(path.join(__dirname,'./Views/')));
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/Views/index.html");
 });
+
 
 app.get("/api/spoonacular/getRecipes", async function (req, res) {
     const queryParams = new URLSearchParams(req.query);

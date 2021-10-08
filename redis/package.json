@@ -1,0 +1,11 @@
+{
+  "name": "the-cook-book",
+  "version": "0.0.0",
+  "description": "TheCookBook",
+  "main": "server.js",
+  "scripts": {
+	"redis-server": "redis-server",
+	"server": "npm --prefix ../ run server",
+	"redis": "npm-run-all -p redis-server server"
+  }
+}
